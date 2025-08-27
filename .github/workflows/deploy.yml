@@ -1,0 +1,31 @@
+name: Deploy to Server (SFTP)
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Copy files via SFTP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}        # 예: 203.0.113.10
+          username: ${{ secrets.SSH_USER }}    # 예: ubuntu
+          key: ${{ secrets.SSH_KEY }}          # 개인키(프라이빗 키) 내용 전체
+          passphrase: ${{ secrets.SSH_PASSPHRASE }} # 패스프레이즈 있으면
+          source: "./"
+          target: "/var/www/html"              # 서버 경로
+          strip_components: 0
+          rm: false
+          overwrite: true
+          exclude: |
+            .git*
+            .github
+            node_modules
+            **/*.md
